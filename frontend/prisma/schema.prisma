@@ -55,9 +55,9 @@ model VerificationToken {
 
 // NextAuth User model, but with our additional extensions
 model User {
-  id               String             @id @default(cuid())
+  id               String            @id @default(cuid())
   name             String?
-  email            String?            @unique
+  email            String?           @unique
   emailVerified    DateTime?
   image            String?
   accounts         Account[]
@@ -68,11 +68,11 @@ model User {
   paymentMethods   PaymentMethod[]
   grants           Grant[]
   contributions    Contribution[]
-  role             Role               @default(User)
-  ecosystemBuilder EcosystemBuilder[]
-  flagged          Boolean            @default(false) // To track if a user is flagged for malicious activity
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  role             Role              @default(User)
+  ecosystemBuilder EcosystemBuilder?
+  flagged          Boolean           @default(false) // To track if a user is flagged for malicious activity
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   checkoutSessions Checkout[]
 }
 
@@ -91,10 +91,10 @@ model Grant {
   fundingGoal      Int
   contributions    Contribution[]
   matchedFund      MatchedFund[]
+  checkoutSessions Checkout[]
   verified         Boolean
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  checkoutSessions Checkout[]
 }
 
 model PaymentAccount {
@@ -158,18 +158,21 @@ model Contribution {
 }
 
 model MatchingRound {
-  id            String             @id @default(cuid())
-  name          String
-  funders       EcosystemBuilder[]
-  contributions Contribution[]
-  grants        Grant[]
-  matchedFunds  MatchedFund[]
-  paid          Boolean            @default(false)
-  verified      Boolean            @default(false)
-  startDate     DateTime
-  endDate       DateTime
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id               String             @id @default(cuid())
+  name             String
+  description      String?
+  image            String?
+  funders          EcosystemBuilder[]
+  contributions    Contribution[]
+  grants           Grant[]
+  matchedFunds     MatchedFund[]
+  checkoutSessions Checkout[]
+  paid             Boolean            @default(false)
+  verified         Boolean            @default(false)
+  startDate        DateTime
+  endDate          DateTime
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 }
 
 model EcosystemBuilder {
@@ -208,14 +211,16 @@ model MatchedFund {
 }
 
 model Checkout {
-  id           Int      @id @default(autoincrement())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  amount       Float
-  denomination String
-  grantId      String?
-  grant        Grant?   @relation(fields: [grantId], references: [id])
-  groupId      String //transfer_group for Stripe or tx ID or any other 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              Int            @id @default(autoincrement())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  amount          Float
+  denomination    String
+  grantId         String?
+  grant           Grant?         @relation(fields: [grantId], references: [id])
+  matchingRoundId String?
+  matchingRound   MatchingRound? @relation(fields: [matchingRoundId], references: [id])
+  groupId         String //transfer_group for Stripe or tx ID or any other 
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
